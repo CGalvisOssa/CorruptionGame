@@ -11,7 +11,7 @@ CAPTION = "Corruption Run"
 
 # Velocidades del jugador
 PLAYER_VEL = 5
-PLAYER_JUMP_FORCE = 4
+PLAYER_JUMP_FORCE = 8
 PLAYER_GRAVITY = 1
 
 # Configuración de combate
@@ -19,12 +19,19 @@ PLAYER_VIDA_INICIAL = 100
 PLAYER_MUNICION_INICIAL = 50
 COOLDOWN_DISPARO = 200  # milisegundos
 BULLET_VELOCIDAD = 12
-BULLET_DANO = 25
+BULLET_DANO = 400 #25
 
 # Configuración de enemigos
 ENEMY_VIDA = 50
 ENEMY_VELOCIDAD = 2
 ENEMY_DANO = 5
+
+# Configuración de boss
+# Valores razonables para el jefe final (puedes ajustar el balance)
+BOSS_VIDA = 400
+BOSS_VELOCIDAD = 2
+BOSS_DANO = 15
+BOSS_COOLDOWN_DISPARO = 1500  # milisegundos
 
 # Sistema de puntuación
 PUNTOS_POR_ENEMIGO = 100
@@ -35,6 +42,10 @@ BLOCK_SIZE = 96
 
 # Cámara
 SCROLL_AREA_WIDTH = 200
+
+# Zona de muerte (si el jugador cae por debajo de este Y -> muerte)
+# Valor por defecto: un poco más abajo del borde de la pantalla
+DEATH_ZONE = HEIGHT + 200
 
 # Colores (RGB)
 COLOR_CIELO = (20, 20, 40)
@@ -54,3 +65,5 @@ PATH_MAIN_CHARACTERS = "MainCharacters"
 PATH_TERRAIN = "Terrain"
 PATH_TRAPS = "Traps"
 PATH_BACKGROUND = "Background"
+PATH_SOUNDS = "sprites/sounds"
+PATH_MUSIC = "sprites/music"

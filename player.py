@@ -30,6 +30,9 @@ class Player(pygame.sprite.Sprite):
         self.jump_count = 0
         self.hit = False
         self.hit_count = 0
+        # Speed boost properties (coffee power-up)
+        self.speed_multiplier = 1.0
+        self.speed_boost_end_time = 0  # pygame ticks when boost expires
         
         # Propiedades de combate
         self.vida = PLAYER_VIDA_INICIAL
@@ -57,10 +60,13 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += dx
         self.rect.y += dy
 
-    def make_hit(self):
-        """Marca al jugador como golpeado"""
+    def make_hit(self, cantidad=10):
+        """Marca al jugador como golpeado y aplica daño.
+
+        cantidad: cantidad de daño a aplicar (por defecto 10, usado por las llamas).
+        """
         self.hit = True
-        self.recibir_dano(10)
+        self.recibir_dano(cantidad)
 
     def recibir_dano(self, cantidad):
         """Reduce la vida del jugador"""
@@ -92,6 +98,28 @@ class Player(pygame.sprite.Sprite):
         if not self.puede_disparar:
             if tiempo_actual - self.tiempo_ultimo_disparo > self.cooldown_disparo:
                 self.puede_disparar = True
+
+    def apply_speed_boost(self, duration_ms: int = 10000, multiplier: float = 1.5, tiempo_actual: int | None = None):
+        """Apply a temporary speed boost to the player.
+
+        duration_ms: duration in milliseconds
+        multiplier: factor to multiply PLAYER_VEL
+        tiempo_actual: optional current time (pygame ticks). If None use pygame.time.get_ticks().
+        """
+        if tiempo_actual is None:
+            tiempo_actual = pygame.time.get_ticks()
+        self.speed_multiplier = multiplier
+        self.speed_boost_end_time = tiempo_actual + duration_ms
+
+    def update_speed_boost(self, tiempo_actual: int):
+        """Expire speed boost when the time is reached."""
+        if self.speed_multiplier != 1.0 and tiempo_actual >= self.speed_boost_end_time:
+            self.speed_multiplier = 1.0
+            self.speed_boost_end_time = 0
+
+    def get_speed(self) -> int:
+        """Get the current horizontal speed the player should use (int)."""
+        return int(PLAYER_VEL * self.speed_multiplier)
 
     def move_left(self, vel):
         """Mueve al jugador a la izquierda"""

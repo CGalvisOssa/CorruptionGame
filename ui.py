@@ -35,6 +35,15 @@ def draw_hud(window, player, puntuacion, combo):
         combo_x = WIDTH // 2 - texto_combo.get_width() // 2
         window.blit(texto_combo, (combo_x, 10))
 
+    # Speed boost indicator (from coffee)
+    try:
+        if hasattr(player, 'speed_multiplier') and player.speed_multiplier > 1.0:
+            remaining = max(0, (player.speed_boost_end_time - pygame.time.get_ticks()) // 1000)
+            texto_speed = fuente.render(f"VELO {player.speed_multiplier:.1f}x : {remaining}s", True, (255, 200, 0))
+            window.blit(texto_speed, (10, 80))
+    except Exception:
+        pass
+
 
 def draw_menu(window):
     """
@@ -155,7 +164,7 @@ def draw_instructions(window):
     return volver_rect.collidepoint(mouse_pos)
 
 
-def draw_game_over(window, puntuacion):
+def draw_game_over(window, puntuacion, allow_retry=False):
     """
     Dibuja la pantalla de Game Over
     
@@ -174,7 +183,10 @@ def draw_game_over(window, puntuacion):
     # Textos
     texto_game_over = fuente_grande.render("GAME OVER", True, COLOR_ROJO)
     texto_puntos = fuente_mediana.render(f"Puntuación Final: {puntuacion}", True, COLOR_AMARILLO_COLOMBIA)
-    texto_continuar = fuente_mediana.render("Presiona ESC para volver al menú", True, COLOR_BLANCO)
+    if allow_retry:
+        texto_continuar = fuente_mediana.render("Presiona R para reintentar o ESC para volver al menú", True, COLOR_BLANCO)
+    else:
+        texto_continuar = fuente_mediana.render("Presiona ESC para volver al menú", True, COLOR_BLANCO)
     
     window.blit(texto_game_over, (WIDTH//2 - texto_game_over.get_width()//2, HEIGHT//2 - 100))
     window.blit(texto_puntos, (WIDTH//2 - texto_puntos.get_width()//2, HEIGHT//2))
@@ -188,5 +200,11 @@ def draw_game_over(window, puntuacion):
             if event.type == pygame.QUIT:
                 return "salir"
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                # Si permitimos reintento, R reinicia el nivel
+                if allow_retry and event.key == pygame.K_r:
+                    return "retry"
+                # ESC vuelve al menú, RETURN/SPACE mantienen comportamiento histórico
+                if event.key == pygame.K_ESCAPE:
+                    return "menu"
+                if not allow_retry and (event.key == pygame.K_RETURN or event.key == pygame.K_SPACE):
                     return "menu"

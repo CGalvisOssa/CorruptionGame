@@ -18,6 +18,12 @@ def handle_vertical_collision(player, objects, dy):
             if dy > 0:  # Cayendo
                 player.rect.bottom = obj.rect.top
                 player.landed()
+                
+                # Si es plataforma móvil, mover al jugador con ella
+                if hasattr(obj, 'name') and obj.name == "moving_platform":
+                    if obj.move_x != 0:
+                        player.rect.x += obj.move_x * obj.direction
+                        
             elif dy < 0:  # Subiendo
                 player.rect.top = obj.rect.bottom
                 player.hit_head()
@@ -55,18 +61,24 @@ def handle_move(player, objects):
     keys = pygame.key.get_pressed()
 
     player.x_vel = 0
-    collide_left = collide(player, objects, -PLAYER_VEL * 2)
-    collide_right = collide(player, objects, PLAYER_VEL * 2)
+    # use player speed if available (for speed boosts), otherwise fallback
+    try:
+        player_speed = player.get_speed()
+    except Exception:
+        player_speed = PLAYER_VEL
+
+    collide_left = collide(player, objects, -player_speed * 2)
+    collide_right = collide(player, objects, player_speed * 2)
 
     if keys[pygame.K_a] and not collide_left:
-        player.move_left(PLAYER_VEL)
+        player.move_left(player_speed)
     if keys[pygame.K_d] and not collide_right:
-        player.move_right(PLAYER_VEL)
+        player.move_right(player_speed)
 
     vertical_collide = handle_vertical_collision(player, objects, player.y_vel)
     to_check = [collide_left, collide_right, *vertical_collide]
 
     # Verificar colisiones con trampas
     for obj in to_check:
-        if obj and obj.name == "fire":
+        if obj and hasattr(obj, 'name') and obj.name == "fire":
             player.make_hit()
